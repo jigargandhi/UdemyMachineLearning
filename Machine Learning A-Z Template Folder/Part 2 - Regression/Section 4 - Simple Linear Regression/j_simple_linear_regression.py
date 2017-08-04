@@ -27,3 +27,6 @@ y_pred = regressor.predict(X_test.reshape(-1,1))
 
 
 #visualizing the training set
+plt.scatter(X_train, y_train, color='red')
+#plt.plot(X_train,y_pred[0], color='blue')
+plt.show()
