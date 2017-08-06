@@ -15,12 +15,17 @@ lin_reg = LinearRegression()
 lin_reg.fit(X,y)
 
 from sklearn.preprocessing import PolynomialFeatures
-poly_reg = PolynomialFeatures(degree = 2)
+poly_reg = PolynomialFeatures(degree = 3)
 X_poly = poly_reg.fit_transform(X)
 
 lin_reg2 = LinearRegression()
-lin_reg.fit(X_poly,y)
+lin_reg2.fit(X_poly,y)
 
 #visualize linear result
 plt.scatter(X,y,color='red')
-plt.plot(X, np.array([x[0] for x in lin_reg.predict(X.reshape(-1,1))]), color='blue')
+plt.plot(X, lin_reg.predict(X.reshape(-1,1)), color='blue')
+
+X_grid = np.arange(min(X), max(X),step = 0.1)
+X_grid = X_grid.reshape((len(X_grid), 1))
+plt.scatter(X,y,color='red')
+plt.plot(X_grid,lin_reg2.predict(poly_reg.fit_transform(X_grid)), color ='blue')
