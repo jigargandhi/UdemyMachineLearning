@@ -4,14 +4,15 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-dataset = pd.read_csv('data/train.csv')
-trainset = pd.read_csv('data/test.csv')
+dataset= pd.read_csv('data/train.csv')
+X_test = pd.read_csv('data/test.csv')
 #removing the Id, SalePrice column as they do not make sense in the X
-X = dataset.iloc[:,1:-1].values
+X_train = dataset.iloc[:,:-1]
 # y is the sale price
 y = dataset.iloc[:,80].values
 
-X = pd.get_dummies(dataset.iloc[:,1:-1], drop_first = True)
+X = X_train.append(X_test,  ignore_index=True)
+X = X.values
 
 #step 1: Impute missing values for Alley by a dummy value 
 from sklearn.preprocessing import Imputer
