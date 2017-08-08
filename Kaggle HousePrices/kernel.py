@@ -12,12 +12,13 @@ X_train = dataset.iloc[:,:-1]
 y = dataset.iloc[:,80].values
 
 X = X_train.append(X_test,  ignore_index=True)
-X = X.values
+X_withoutIndex = pd.get_dummies(X, drop_first= True)
 
-#step 1: Impute missing values for Alley by a dummy value 
-from sklearn.preprocessing import Imputer
-imputer = Imputer()
-X= imputer.fit_transform(X)
+
+X = X_withoutIndex.iloc[:,1:].values
+
+X_train = X
+
 
 ##Label Encoding is required, OneHotEncoder is required, Scaling is not required
 ##, Imputing is required for Alley column
