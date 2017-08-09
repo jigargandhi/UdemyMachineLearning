@@ -23,10 +23,13 @@ for col in test.columns:
         test[col].fillna('',inplace=True)
 
 for col in test.columns:
-    if(str(test[col].dtype== np.dtype('float64'))):
+    if(test[col].dtype== np.dtype('float64')):
         train[col].fillna(0,inplace=True)
         if(col != 'SalePrice'):
                 test[col].fillna(0,inplace=True)
+            
+from sklearn.preprocessing import MultiLabelBinarizer
+labelBinarizer = MultiLabelBinarizer()
 
 
 from sklearn.preprocessing import LabelEncoder
