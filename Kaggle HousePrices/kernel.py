@@ -4,58 +4,65 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-dataset= pd.read_csv('data/train.csv')
-X_test = pd.read_csv('data/test.csv')
-#removing the Id, SalePrice column as they do not make sense in the X
-X_train = dataset.iloc[:,:-1]
-# y is the sale price
-y = dataset.iloc[:,80].values
+train= pd.read_csv('data/train.csv')
+test = pd.read_csv('data/test.csv')
+#replacing numerical categorical values
+train['MSSubClass'].replace({20:'C20',30:'C30', 40:'C40', 45: 'C45', 50: 'C50'
+                           , 60: 'C60', 70: 'C70', 75: 'C75', 80: 'C80', 85: 'C85', 90:  'C90' 
+                           , 120: 'C120', 150:'C150',160:'C160', 180:'C180', 
+                             190: 'C190'}, inplace=True)
+test['MSSubClass'].replace({20:'C20',30:'C30', 40:'C40', 45: 'C45', 50: 'C50'
+                           , 60: 'C60', 70: 'C70', 75: 'C75', 80: 'C80', 85: 'C85', 90:  'C90' 
+                           , 120: 'C120', 150:'C150',160:'C160', 180:'C180', 
+                             190: 'C190'}, inplace= True)	
+#imputing
+for col in test.columns:
+    if (str(test[col].dtype) == 'object'):
+        
+        train[col].fillna('',inplace=True)
+        test[col].fillna('',inplace=True)
 
-X = X_train.append(X_test,  ignore_index=True)
-X_withoutIndex = pd.get_dummies(X, drop_first= True)
-
-
-X = X_withoutIndex.iloc[:,1:].values
-
-X_train = X
-
-
-##Label Encoding is required, OneHotEncoder is required, Scaling is not required
-##, Imputing is required for Alley column
-#from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-##label_mssubClass = LabelEncoder()
-#X[:,0]= label_mssubClass.fit_transform(X[:,0])
-#label_mszoning = LabelEncoder()
-#X[:,1] = label_mszoning
-#hotencoder = OneHotEncoder()
-#X= hotencoder.fit_transform(X)
-
-#transform Non Linear models use decision tree, random forest, and 
-#multiple linear Regression
+for col in test.columns:
+    if(str(test[col].dtype== np.dtype('float64'))):
+        train[col].fillna(0,inplace=True)
+        if(col != 'SalePrice'):
+                test[col].fillna(0,inplace=True)
 
 
+from sklearn.preprocessing import LabelEncoder
+#encoding labels
+for col in test.columns:
+    le = LabelEncoder()    
+    if(str(train[col].dtype) =='object'):
+        
+        data = train[col].append(test[col])
+        le.fit(data.values)
+        train[col] = le.transform(train[col])
+        test[col] = le.transform(test[col])
+
+#standard scaling
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+train['SalePrice'] = scaler.fit_transform(train['SalePrice'])
+        
+X = train.iloc[:,1:-1].values
+y = train.iloc[:,-1].values
 from sklearn.cross_validation import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state=0)
-
+X_train, X_test, y_train, y_test = train_test_split(X, y,test_size = 0.2, random_state = 0 )        
+        
 from sklearn.linear_model import LinearRegression
 regressor = LinearRegression()
 regressor.fit(X_train, y_train)
-
 y_pred = regressor.predict(X_test)
+# RMSE: 3282784944.2
 
-import statsmodels.formula.api as sm
-regressor_ols = sm.OLS(endog = y_train, exog = X_train).fit()
-regressor_ols.summary()
-"""                    OLS Regression Results                            
-==============================================================================
-Dep. Variable:                      y   R-squared:                       0.945
-Model:                            OLS   Adj. R-squared:                  0.931
-Method:                 Least Squares   F-statistic:                     67.26
-Date:                Mon, 07 Aug 2017   Prob (F-statistic):               0.00
-Time:                        14:50:59   Log-Likelihood:                -13132.
-No. Observations:                1168   AIC:                         2.674e+04
-Df Residuals:                     931   BIC:                         2.794e+04
-Df Model:                         236                                         
-Covariance Type:            nonrobust                                         
-==============================================================================
-"""
+y_pred2 = regressor.predict(test.iloc[:,1:].values)
+
+from sklearn.metrics import mean_squared_error
+rmse = mean_squared_error(y_test, y_pred)
+
+# Create a data frame out of the y_pred and upload
+
+#visualization ???
+plt.scatter(test['GrLivArea'], y_pred2, color='red')
+plt.show()
