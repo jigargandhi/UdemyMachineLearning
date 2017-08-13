@@ -28,8 +28,8 @@ for col in test.columns:
         if(col != 'SalePrice'):
                 test[col].fillna(0,inplace=True)
             
-from sklearn.preprocessing import MultiLabelBinarizer
-labelBinarizer = MultiLabelBinarizer()
+#from sklearn.preprocessing import MultiLabelBinarizer
+#labelBinarizer = MultiLabelBinarizer()
 
 
 from sklearn.preprocessing import LabelEncoder
@@ -64,8 +64,10 @@ y_pred2 = regressor.predict(test.iloc[:,1:].values)
 from sklearn.metrics import mean_squared_error
 rmse = mean_squared_error(y_test, y_pred)
 
-# Create a data frame out of the y_pred and upload
 
-#visualization ???
-plt.scatter(test['GrLivArea'], y_pred2, color='red')
-plt.show()
+#write the data
+newData = { 'Id' : test.iloc[:,0], 'SalePrice': scaler.inverse_transform(y_pred2) }
+
+resultset = pd.DataFrame(newData)
+
+resultset.to_csv('data/result.csv', index = False)
